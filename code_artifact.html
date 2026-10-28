@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>气球大作战 - 一年级科学总复习</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+SC:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', 'Noto Sans SC', sans-serif;
+            background: radial-gradient(circle at 50% 30%, #2e0854 0%, #180b30 50%, #0c051a 100%);
+            color: #ffffff;
+            user-select: none;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* Neon & Arcade Glows Inspired by Reference Art */
+        .neon-glow-pink {
+            box-shadow: 0 0 25px rgba(244, 63, 94, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .neon-glow-gold {
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.6);
+        }
+        .neon-glow-blue {
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Continuous Upward Floating Balloon Motion */
+        @keyframes floatUpward {
+            0% {
+                transform: translateY(110%) translateX(0px) rotate(0deg);
+            }
+            25% {
+                transform: translateY(60%) translateX(15px) rotate(4deg);
+            }
+            50% {
+                transform: translateY(10%) translateX(-15px) rotate(-4deg);
+            }
+            75% {
+                transform: translateY(-40%) translateX(10px) rotate(3deg);
+            }
+            100% {
+                transform: translateY(-90%) translateX(0px) rotate(0deg);
+            }
+        }
+
+        .balloon-floating-item {
+            position: absolute;
+            animation: floatUpward linear infinite;
+            will-change: transform;
+        }
+
+        .balloon-floating-item:active {
+            transform: scale(0.9);
+        }
+
+        /* Magic Beam Shoot Laser Effect */
+        .laser-beam {
+            position: absolute;
+            pointer-events: none;
+            background: linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(251,191,36,1) 50%, rgba(244,63,94,0) 100%);
+            box-shadow: 0 0 15px #fbbf24, 0 0 30px #f43f5e;
+            transform-origin: bottom center;
+            z-index: 40;
+            animation: beamFade 0.25s ease-out forwards;
+        }
+
+        @keyframes beamFade {
+            0% { opacity: 1; width: 8px; }
+            100% { opacity: 0; width: 2px; }
+        }
+
+        /* Pop Burst Explosion Effect */
+        @keyframes popBurst {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4) rotate(15deg); filter: brightness(1.8); opacity: 0.9; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .pop-effect {
+            animation: popBurst 0.3s ease-out forwards;
+        }
+
+        /* Ambient glowing background circles */
+        .bg-glow-orb-1 {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(244, 63, 94, 0.25) 0%, rgba(0,0,0,0) 70%);
+            top: -100px;
+            left: -100px;
+            pointer-events: none;
+        }
+        .bg-glow-orb-2 {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, rgba(0,0,0,0) 70%);
+            bottom: -150px;
+            right: -100px;
+            pointer-events: none;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-between relative overflow-hidden">
+
+    <!-- Ambient Glowing Backdrop -->
+    <div class="bg-glow-orb-1"></div>
+    <div class="bg-glow-orb-2"></div>
+
+    <!-- Header Navigation / Status Bar -->
+    <header class="w-full max-w-5xl mx-auto pt-3 px-4 z-30">
+        <div class="bg-indigo-950/80 backdrop-blur-md rounded-3xl p-3 px-6 shadow-2xl border-2 border-indigo-500/40 flex items-center justify-between">
+            
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-pink-500 via-rose-500 to-amber-400 flex items-center justify-center text-white text-2xl shadow-lg transform -rotate-6 neon-glow-pink">
+                    🎯
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-amber-300 to-cyan-300 leading-tight">科学气球大作战</h1>
+                    <p class="text-xs text-indigo-200/70 font-bold">一年级全册总复习 (30关)</p>
+                </div>
+            </div>
+
+            <!-- Progress & Score Status -->
+            <div class="flex items-center gap-4 sm:gap-6">
+                <!-- Score Counter -->
+                <div class="flex items-center gap-2 bg-amber-500/20 border border-amber-400/50 px-3.5 py-1.5 rounded-2xl neon-glow-gold">
+                    <i class="fa-solid fa-star text-amber-400 text-lg animate-bounce"></i>
+                    <span id="score-text" class="text-base sm:text-lg font-black text-amber-300">0</span>
+                </div>
+
+                <!-- Level Progress Indicator -->
+                <div class="text-right hidden sm:block">
+                    <div class="text-xs text-indigo-300/80 font-bold">关卡进度</div>
+                    <div class="text-sm font-black text-cyan-300"><span id="level-text">1</span> / 30</div>
+                </div>
+
+                <!-- Audio Toggle -->
+                <button onclick="toggleSound()" class="w-10 h-10 bg-indigo-900/80 hover:bg-indigo-800 border border-indigo-500/50 rounded-2xl flex items-center justify-center text-cyan-300 font-bold transition">
+                    <i id="sound-icon" class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main class="w-full max-w-5xl mx-auto px-4 my-auto flex-grow flex flex-col justify-center items-center z-10 relative">
+
+        <!-- START SCREEN -->
+        <div id="start-screen" class="w-full max-w-xl bg-indigo-950/90 backdrop-blur-lg rounded-3xl p-6 sm:p-8 text-center shadow-2xl border-2 border-indigo-500/50 relative">
+            
+            <!-- Target Art Banner -->
+            <div class="relative w-28 h-28 mx-auto mb-4 bg-gradient-to-tr from-pink-500 via-purple-600 to-cyan-400 rounded-full flex items-center justify-center text-5xl shadow-2xl border-4 border-amber-300 neon-glow-gold">
+                <i class="fa-solid fa-bullseye text-amber-300 animate-pulse"></i>
+                <span class="absolute -top-2 -right-2 bg-pink-500 text-white text-xs font-black px-2 py-0.5 rounded-full border border-white">x2</span>
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-pink-300 to-cyan-300 mb-2">
+                炫彩飘动！射爆正确科学气球！
+            </h2>
+            <p class="text-indigo-200 text-xs sm:text-sm mb-6 font-bold leading-relaxed max-w-md mx-auto">
+                气球在空中不断往上飘动！看准任务目标，点击射出炫彩魔法光束！击爆所有正确目标即可<span class="text-amber-300">自动进入下一题</span>！
+            </p>
+
+            <div class="bg-indigo-900/60 rounded-2xl p-4 mb-6 border border-indigo-700/60 grid grid-cols-3 gap-2 text-xs font-bold text-indigo-200">
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-2xl">🎯</span>
+                    <span>看清任务</span>
+                </div>
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-2xl">🎈</span>
+                    <span>瞄准升空气球</span>
+                </div>
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-2xl">⚡</span>
+                    <span>自动过关</span>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-pink-500 via-rose-500 to-amber-400 hover:from-pink-400 hover:to-amber-300 text-slate-950 font-black text-xl rounded-2xl shadow-xl transform transition active:scale-95 border-2 border-amber-300 neon-glow-gold">
+                <i class="fa-solid fa-play mr-2"></i> 开始大作战！
+            </button>
+        </div>
+
+        <!-- STAGE PLAY SCREEN (Hidden) -->
+        <div id="game-screen" class="w-full flex flex-col items-center hidden gap-3 h-full justify-between">
+            
+            <!-- Target Mission Card Header -->
+            <div class="w-full max-w-2xl bg-indigo-950/85 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 shadow-2xl border-2 border-indigo-500/40 text-center z-20">
+                <div class="inline-block px-3 py-0.5 bg-pink-500/20 text-pink-300 rounded-full text-xs font-black mb-1 border border-pink-500/40" id="unit-badge">
+                    单元 1：科学程序技能
+                </div>
+                <h3 id="target-title" class="text-lg sm:text-2xl font-black text-amber-300 leading-snug drop-shadow">
+                    任务：射中所有【物体】！
+                </h3>
+                <p id="target-sub" class="text-xs text-cyan-300 font-bold mt-0.5">
+                    💡 击爆所有符合要求的气球，系统将自动进入下一题！
+                </p>
+            </div>
+
+            <!-- Balloon Playground Stage (Floating Upwards) -->
+            <div id="balloon-stage" class="w-full flex-grow min-h-[420px] sm:min-h-[480px] bg-slate-950/40 border-2 border-indigo-500/30 rounded-3xl shadow-inner relative overflow-hidden">
+                <!-- Floating balloons injected via JS -->
+            </div>
+
+            <!-- Auto Progress Toast Banner -->
+            <div id="auto-toast" class="fixed bottom-6 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black px-6 py-2.5 rounded-full shadow-2xl border-2 border-white text-sm sm:text-base flex items-center gap-2 transform translate-y-20 opacity-0 transition-all duration-300 z-50 pointer-events-none">
+                <i class="fa-solid fa-circle-check text-lg"></i>
+                <span>完美清除！准备进入下一题...</span>
+            </div>
+
+        </div>
+
+        <!-- END RESULT SCREEN (Hidden) -->
+        <div id="end-screen" class="w-full max-w-xl bg-indigo-950/90 backdrop-blur-lg rounded-3xl p-6 sm:p-8 text-center shadow-2xl border-2 border-indigo-500/50 hidden relative">
+            <div class="w-28 h-28 mx-auto mb-4 bg-gradient-to-tr from-amber-400 to-yellow-300 rounded-full flex items-center justify-center text-6xl shadow-xl border-4 border-white neon-glow-gold">
+                🏆
+            </div>
+            <h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-pink-300 mb-2">挑战完成！太棒了！</h2>
+            <p class="text-indigo-200 font-bold text-base mb-4">
+                你的最终得分是：<span id="final-score" class="text-3xl font-black text-amber-300">0</span> 分！
+            </p>
+
+            <div class="bg-indigo-900/60 rounded-2xl p-4 mb-6 border border-indigo-700/60">
+                <div id="star-rating" class="text-3xl mb-2 text-amber-400 space-x-1">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <p id="evaluation-text" class="text-sm font-bold text-indigo-100 leading-relaxed"></p>
+            </div>
+
+            <button onclick="startGame()" class="px-10 py-4 bg-gradient-to-r from-pink-500 via-rose-500 to-amber-400 text-slate-950 font-black text-lg rounded-2xl shadow-xl border-2 border-amber-300 neon-glow-gold transform transition hover:scale-105 active:scale-95">
+                <i class="fa-solid fa-rotate-right mr-2"></i> 再玩一次！
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer Credit -->
+    <footer class="w-full text-center py-2 text-indigo-300/60 font-bold text-xs z-20">
+        一年级科学课程 (SJKC KSSR Semakan) 炫彩互动复习
+    </footer>
+
+    <!-- Audio FX & Dynamic Game Script -->
+    <script>
+        // --- Web Audio API Sound Effects ---
+        let soundEnabled = true;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'pop') {
+                    // Arcade Laser Pop sound
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.08);
+                } else if (type === 'wrong') {
+                    // Wrong selection sound
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(120, audioCtx.currentTime + 0.12);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'pass') {
+                    // Level Auto Complete Fanfare
+                    const now = audioCtx.currentTime;
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    osc.frequency.setValueAtTime(1046.50, now + 0.24); // C6
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+                    osc.start();
+                    osc.stop(now + 0.45);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(450, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch(e){}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                icon.className = 'fa-solid fa-volume-high text-cyan-300';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-rose-400';
+            }
+        }
+
+        // Vibrant neon color palettes matching reference image aesthetic
+        const balloonColors = [
+            { bg: 'bg-gradient-to-b from-rose-400 via-pink-500 to-red-600', glow: 'neon-glow-pink', text: 'text-white' },
+            { bg: 'bg-gradient-to-b from-amber-300 via-yellow-400 to-amber-500', glow: 'neon-glow-gold', text: 'text-slate-900' },
+            { bg: 'bg-gradient-to-b from-sky-300 via-cyan-400 to-blue-600', glow: 'neon-glow-blue', text: 'text-white' },
+            { bg: 'bg-gradient-to-b from-emerald-300 via-teal-400 to-emerald-600', glow: 'neon-glow-blue', text: 'text-white' },
+            { bg: 'bg-gradient-to-b from-purple-400 via-fuchsia-500 to-indigo-600', glow: 'neon-glow-pink', text: 'text-white' }
+        ];
+
+        // --- 30 Science Questions for KSSR Standard 1 ---
+        const questionsData = [
+            // 单元1：科学程序技能 (1-3)
+            {
+                unit: "单元 1：科学程序技能",
+                target: "用【鼻子（嗅觉）】来观察的东西",
+                balloons: [
+                    { text: "花朵的香味", icon: "🌸", isTarget: true },
+                    { text: "音乐声", icon: "🎵", isTarget: false },
+                    { text: "彩虹的颜色", icon: "🌈", isTarget: false },
+                    { text: "冰块的冷感", icon: "🧊", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 1：科学程序技能",
+                target: "射爆属于【分类】技能的动作",
+                balloons: [
+                    { text: "把硬币和木块分开", icon: "📦", isTarget: true },
+                    { text: "用尺测量长度", icon: "📏", isTarget: false },
+                    { text: "用口说话回答", icon: "🗣️", isTarget: false },
+                    { text: "用眼睛看书", icon: "📖", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 1：科学程序技能",
+                target: "射爆【正确使用放大镜】的气球",
+                balloons: [
+                    { text: "看清微小物体", icon: "🔍", isTarget: true },
+                    { text: "用来听声音", icon: "🎧", isTarget: false },
+                    { text: "用来闻气味", icon: "👃", isTarget: false },
+                    { text: "用来品尝食物", icon: "👅", isTarget: false }
+                ]
+            },
+
+            // 单元2：科学室规则 (4-5)
+            {
+                unit: "单元 2：科学室规则",
+                target: "在科学室里【正确守规矩】的行为",
+                balloons: [
+                    { text: "听从老师指示", icon: "👩‍🏫", isTarget: true },
+                    { text: "在室内追逐", icon: "🏃", isTarget: false },
+                    { text: "吃零食喝水", icon: "🍿", isTarget: false },
+                    { text: "擅自拿取标本", icon: "🧪", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 2：科学室规则",
+                target: "打碎实验玻璃杯时的【正确做法】",
+                balloons: [
+                    { text: "立刻报告老师", icon: "🙋‍♂️", isTarget: true },
+                    { text: "用手直接捡", icon: "✋", isTarget: false },
+                    { text: "偷偷藏起来", icon: "🙈", isTarget: false },
+                    { text: "扫给同桌", icon: "🧹", isTarget: false }
+                ]
+            },
+
+            // 单元3：生物和非生物 (6-9)
+            {
+                unit: "单元 3：生物和非生物",
+                target: "射爆所有属于【生物】的气球",
+                balloons: [
+                    { text: "小猫", icon: "🐱", isTarget: true },
+                    { text: "大树", icon: "🌳", isTarget: true },
+                    { text: "玩具车", icon: "🚗", isTarget: false },
+                    { text: "石头", icon: "🪨", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 3：生物和非生物",
+                target: "生物的【基本需求】之一",
+                balloons: [
+                    { text: "水", icon: "💧", isTarget: true },
+                    { text: "食物", icon: "🍎", isTarget: true },
+                    { text: "电视机", icon: "📺", isTarget: false },
+                    { text: "电子游戏", icon: "🎮", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 3：生物和非生物",
+                target: "属于【非生物】的气球",
+                balloons: [
+                    { text: "机器人", icon: "🤖", isTarget: true },
+                    { text: "塑料洋娃娃", icon: "🧸", isTarget: true },
+                    { text: "小鸟", icon: "🐦", isTarget: false },
+                    { text: "小草", icon: "🌱", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 3：生物和非生物",
+                target: "生物会有的【生命特征】",
+                balloons: [
+                    { text: "会生长变大", icon: "📈", isTarget: true },
+                    { text: "会呼吸", icon: "🫁", isTarget: true },
+                    { text: "永远不变大", icon: "🛑", isTarget: false },
+                    { text: "不需要吃东西", icon: "❌", isTarget: false }
+                ]
+            },
+
+            // 单元4：人类 (10-12)
+            {
+                unit: "单元 4：人类",
+                target: "用来【感受冷热和粗糙】的感觉器官",
+                balloons: [
+                    { text: "皮肤（触觉）", icon: "✋", isTarget: true },
+                    { text: "眼睛（视觉）", icon: "👁️", isTarget: false },
+                    { text: "耳朵（听觉）", icon: "👂", isTarget: false },
+                    { text: "舌头（味觉）", icon: "👅", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 4：人类",
+                target: "用来【辨别香甜和酸辣】的器官",
+                balloons: [
+                    { text: "舌头", icon: "👅", isTarget: true },
+                    { text: "耳朵", icon: "👂", isTarget: false },
+                    { text: "眼睛", icon: "👁️", isTarget: false },
+                    { text: "头发", icon: "💇", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 4：人类",
+                target: "保护【眼睛（视觉）】的正确方法",
+                balloons: [
+                    { text: "在光线充足下看书", icon: "💡", isTarget: true },
+                    { text: "近距离看电视", icon: "📺", isTarget: false },
+                    { text: "用脏手揉眼睛", icon: "🙅", isTarget: false },
+                    { text: "直视强烈阳光", icon: "☀️", isTarget: false }
+                ]
+            },
+
+            // 单元5：动物 (13-16)
+            {
+                unit: "单元 5：动物",
+                target: "身体表面【长有羽毛】的动物",
+                balloons: [
+                    { text: "小鸟", icon: "🐦", isTarget: true },
+                    { text: "鸭子", icon: "🦆", isTarget: true },
+                    { text: "老虎", icon: "🐅", isTarget: false },
+                    { text: "金鱼", icon: "🐠", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 5：动物",
+                target: "脚上有【蹼】帮助游泳的动物",
+                balloons: [
+                    { text: "青蛙", icon: "🐸", isTarget: true },
+                    { text: "鸭子", icon: "🦆", isTarget: true },
+                    { text: "小狗", icon: "🐶", isTarget: false },
+                    { text: "猫咪", icon: "🐱", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 5：动物",
+                target: "身体有【硬壳】保护自身的动物",
+                balloons: [
+                    { text: "蜗牛", icon: "🐌", isTarget: true },
+                    { text: "乌龟", icon: "🐢", isTarget: true },
+                    { text: "兔子", icon: "🐰", isTarget: false },
+                    { text: "蝴蝶", icon: "🦋", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 5：动物",
+                target: "身体表面【长有鳞片】的动物",
+                balloons: [
+                    { text: "鱼", icon: "🐟", isTarget: true },
+                    { text: "蛇", icon: "🐍", isTarget: true },
+                    { text: "山羊", icon: "🐐", isTarget: false },
+                    { text: "松鼠", icon: "🐿️", isTarget: false }
+                ]
+            },
+
+            // 单元6：植物 (17-20)
+            {
+                unit: "单元 6：植物",
+                target: "拥有【平行脉】叶子的植物",
+                balloons: [
+                    { text: "茅草", icon: "🌾", isTarget: true },
+                    { text: "香蕉树", icon: "🍌", isTarget: true },
+                    { text: "凤仙花", icon: "🌺", isTarget: false },
+                    { text: "大花木槿", icon: "🌸", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 6：植物",
+                target: "植物中负责【吸收水分】的部位",
+                balloons: [
+                    { text: "根", icon: "🪴", isTarget: true },
+                    { text: "花", icon: "🌻", isTarget: false },
+                    { text: "果实", icon: "🍎", isTarget: false },
+                    { text: "叶子", icon: "🍃", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 6：植物",
+                target: "属于【开花植物】的气球",
+                balloons: [
+                    { text: "玫瑰花", icon: "🌹", isTarget: true },
+                    { text: "向日葵", icon: "🌻", isTarget: true },
+                    { text: "苔藓", icon: "🟩", isTarget: false },
+                    { text: "羊齿植物", icon: "🌿", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 6：植物",
+                target: "拥有【须根】的植物",
+                balloons: [
+                    { text: "洋葱", icon: "🧅", isTarget: true },
+                    { text: "水稻", icon: "🌾", isTarget: true },
+                    { text: "凤仙花", icon: "🌸", isTarget: false },
+                    { text: "红毛丹树", icon: "🌳", isTarget: false }
+                ]
+            },
+
+            // 单元7：磁铁 (21-23)
+            {
+                unit: "单元 7：磁铁",
+                target: "能被磁铁【吸引】的物品",
+                balloons: [
+                    { text: "铁钉", icon: "🔩", isTarget: true },
+                    { text: "回形针", icon: "📎", isTarget: true },
+                    { text: "塑料尺", icon: "📏", isTarget: false },
+                    { text: "橡皮擦", icon: "🧼", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 7：磁铁",
+                target: "两个磁铁【同极靠近（如 N与N）】的反应",
+                balloons: [
+                    { text: "互相排斥（推开）", icon: "↔️", isTarget: true },
+                    { text: "互相吸引（黏住）", icon: "🧲", isTarget: false },
+                    { text: "融化变液体", icon: "🫠", isTarget: false },
+                    { text: "发光冒烟", icon: "💨", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 7：磁铁",
+                target: "磁铁【磁力最强】的位置",
+                balloons: [
+                    { text: "磁极（两端）", icon: "🧲", isTarget: true },
+                    { text: "中间位置", icon: "📍", isTarget: false },
+                    { text: "上方空气", icon: "☁️", isTarget: false },
+                    { text: "底座玻璃", icon: "🪟", isTarget: false }
+                ]
+            },
+
+            // 单元8：吸水能力 (24-26)
+            {
+                unit: "单元 8：吸水能力",
+                target: "射爆所有【能够吸水】的物品",
+                balloons: [
+                    { text: "棉布手帕", icon: "🥢", isTarget: true },
+                    { text: "面巾纸", icon: "🧻", isTarget: true },
+                    { text: "塑料瓶", icon: "🍾", isTarget: false },
+                    { text: "玻璃杯", icon: "🥛", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 8：吸水能力",
+                target: "做雨衣雨伞用的【不吸水】材料",
+                balloons: [
+                    { text: "塑料", icon: "🌧️", isTarget: true },
+                    { text: "布料", icon: "👕", isTarget: false },
+                    { text: "卫生纸", icon: "🧻", isTarget: false },
+                    { text: "报纸", icon: "📰", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 8：吸水能力",
+                target: "【吸水能力最强】的物品",
+                balloons: [
+                    { text: "海绵", icon: "🧽", isTarget: true },
+                    { text: "打印纸", icon: "📄", isTarget: false },
+                    { text: "塑料膜", icon: "🛍️", isTarget: false },
+                    { text: "铝箔纸", icon: "✨", isTarget: false }
+                ]
+            },
+
+            // 单元9：地球 (27-28)
+            {
+                unit: "单元 9：地球",
+                target: "最适合种植大多数蔬菜花卉的【土壤】",
+                balloons: [
+                    { text: "壤土", icon: "🪴", isTarget: true },
+                    { text: "沙土", icon: "🏖️", isTarget: false },
+                    { text: "黏土", icon: "🧱", isTarget: false },
+                    { text: "水泥", icon: "🏗️", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 9：地球",
+                target: "主要由沙粒组成、渗水最快的【土壤】",
+                balloons: [
+                    { text: "沙土", icon: "🏖️", isTarget: true },
+                    { text: "黏土", icon: "🧱", isTarget: false },
+                    { text: "壤土", icon: "🌱", isTarget: false },
+                    { text: "黑泥土", icon: "⬛", isTarget: false }
+                ]
+            },
+
+            // 单元10：建筑 (29-30)
+            {
+                unit: "单元 10：建筑",
+                target: "魔方属于哪种【基本立体形状】",
+                balloons: [
+                    { text: "正方体", icon: "🎲", isTarget: true },
+                    { text: "球体", icon: "⚽", isTarget: false },
+                    { text: "圆柱体", icon: "🥫", isTarget: false },
+                    { text: "圆锥体", icon: "🍦", isTarget: false }
+                ]
+            },
+            {
+                unit: "单元 10：建筑",
+                target: "拆卸建筑模型组件时的【正确态度】",
+                balloons: [
+                    { text: "按顺序拆卸收好", icon: "🧰", isTarget: true },
+                    { text: "用力砸烂", icon: "💥", isTarget: false },
+                    { text: "随手扔地上", icon: "🗑️", isTarget: false },
+                    { text: "把组件掰断", icon: "💔", isTarget: false }
+                ]
+            }
+        ];
+
+        // State variables
+        let currentQIndex = 0;
+        let score = 0;
+        let remainingTargets = 0;
+        let autoNextTimeout = null;
+
+        function startGame() {
+            playSound('click');
+            score = 0;
+            currentQIndex = 0;
+            document.getElementById('score-text').innerText = score;
+            
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (autoNextTimeout) clearTimeout(autoNextTimeout);
+            
+            // Hide toast
+            const toast = document.getElementById('auto-toast');
+            toast.classList.add('translate-y-20', 'opacity-0');
+
+            const q = questionsData[currentQIndex];
+            
+            document.getElementById('unit-badge').innerText = q.unit;
+            document.getElementById('level-text').innerText = currentQIndex + 1;
+            document.getElementById('target-title').innerText = `任务：击爆【${q.target}】！`;
+
+            const stage = document.getElementById('balloon-stage');
+            stage.innerHTML = '';
+
+            // Count targets needed to clear
+            remainingTargets = q.balloons.filter(b => b.isTarget).length;
+
+            // Compute floating column positions for balloons
+            const total = q.balloons.length;
+            q.balloons.forEach((bData, idx) => {
+                const colorObj = balloonColors[idx % balloonColors.length];
+                
+                const balloonWrapper = document.createElement('div');
+                balloonWrapper.className = `balloon-floating-item flex flex-col items-center cursor-pointer select-none group z-10`;
+                
+                // Horizontally space out the floating paths across stage (20% to 80%)
+                const horizontalPos = 12 + (idx * (76 / total)) + (Math.random() * 4 - 2);
+                balloonWrapper.style.left = `${horizontalPos}%`;
+                
+                // Randomize float speed (6s to 9s) and staggered start delays (-6s to 0s)
+                const duration = 6.5 + Math.random() * 2.5;
+                const delay = -1 * (Math.random() * duration);
+                balloonWrapper.style.animationDuration = `${duration}s`;
+                balloonWrapper.style.animationDelay = `${delay}s`;
+
+                balloonWrapper.innerHTML = `
+                    <!-- Target Ring Top Badge (Inspired by Reference Art) -->
+                    <div class="w-6 h-6 rounded-full border-2 border-white bg-red-500 flex items-center justify-center mb-0.5 shadow-md">
+                        <div class="w-2.5 h-2.5 rounded-full bg-white"></div>
+                    </div>
+                    
+                    <!-- Main Metallic Balloon Body -->
+                    <div class="w-28 h-36 sm:w-32 sm:h-40 ${colorObj.bg} ${colorObj.glow} rounded-[50%_50%_50%_50%/40%_40%_60%_60%] flex flex-col items-center justify-center p-2 text-center relative transform group-hover:scale-105 transition">
+                        <!-- Shiny Highlight Reflection -->
+                        <div class="absolute top-2.5 left-3 w-4 h-9 bg-white/45 rounded-full transform -rotate-45 pointer-events-none"></div>
+                        
+                        <span class="text-3xl sm:text-4xl mb-1 drop-shadow-md">${bData.icon}</span>
+                        <span class="text-xs sm:text-sm font-black ${colorObj.text} leading-tight drop-shadow-md px-1">${bData.text}</span>
+                    </div>
+
+                    <!-- Knot & String -->
+                    <div class="text-xs text-amber-300 -mt-1"><i class="fa-solid fa-play transform rotate-90"></i></div>
+                    <div class="w-0.5 h-12 bg-gradient-to-b from-amber-200 to-transparent"></div>
+                `;
+
+                balloonWrapper.onclick = (e) => shootBalloon(e, balloonWrapper, bData);
+                stage.appendChild(balloonWrapper);
+            });
+        }
+
+        function shootBalloon(event, element, data) {
+            if (element.classList.contains('popped')) return;
+
+            const rect = element.getBoundingClientRect();
+            const clickX = event.clientX || (rect.left + rect.width / 2);
+            const clickY = event.clientY || (rect.top + rect.height / 2);
+
+            // Spawn Laser Beam & Particle Explosions
+            createLaserEffect(clickX, clickY);
+
+            if (data.isTarget) {
+                element.classList.add('popped');
+                playSound('pop');
+                
+                // Pop Explosion Visual
+                element.classList.add('pop-effect');
+                setTimeout(() => { element.style.visibility = 'hidden'; }, 280);
+
+                score += 10;
+                document.getElementById('score-text').innerText = score;
+                remainingTargets--;
+
+                // CHECK AUTOMATIC STAGE CLEARING
+                if (remainingTargets <= 0) {
+                    playSound('pass');
+                    
+                    // Show Floating Success Toast
+                    const toast = document.getElementById('auto-toast');
+                    toast.classList.remove('translate-y-20', 'opacity-0');
+
+                    // AUTOMATICALLY TRIGGER NEXT QUESTION AFTER 1.2 SECONDS
+                    autoNextTimeout = setTimeout(() => {
+                        nextQuestion();
+                    }, 1200);
+                }
+            } else {
+                playSound('wrong');
+                // Shake penalty effect
+                element.classList.add('animate-bounce');
+                setTimeout(() => element.classList.remove('animate-bounce'), 600);
+            }
+        }
+
+        // Shoot Beam and Particle Explosion
+        function createLaserEffect(targetX, targetY) {
+            // Laser beam line from bottom screen to click position
+            const beam = document.createElement('div');
+            beam.className = 'laser-beam';
+            
+            const startX = window.innerWidth / 2;
+            const startY = window.innerHeight;
+            
+            const deltaX = targetX - startX;
+            const deltaY = targetY - startY;
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI) + 90;
+
+            beam.style.height = `${distance}px`;
+            beam.style.left = `${startX}px`;
+            beam.style.top = `${startY - distance}px`;
+            beam.style.transform = `rotate(${angle}deg)`;
+            
+            document.body.appendChild(beam);
+            setTimeout(() => beam.remove(), 250);
+
+            // Sparkle Particle Explosion Burst
+            for (let i = 0; i < 6; i++) {
+                const p = document.createElement('div');
+                p.className = 'fixed pointer-events-none z-50 text-amber-300 text-lg animate-ping';
+                p.style.left = `${targetX + (Math.random() * 40 - 20)}px`;
+                p.style.top = `${targetY + (Math.random() * 40 - 20)}px`;
+                p.innerHTML = Math.random() > 0.5 ? '⭐' : '✨';
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 400);
+            }
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < questionsData.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+
+            const stars = document.getElementById('star-rating');
+            const evalText = document.getElementById('evaluation-text');
+
+            if (score >= 260) {
+                stars.innerHTML = '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>';
+                evalText.innerHTML = "🎉 <strong>太厉害了！满分小勇士！</strong><br>你完全掌握了一年级科学的所有知识，所有的气球都被你精准击爆！";
+            } else if (score >= 180) {
+                stars.innerHTML = '<i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>';
+                evalText.innerHTML = "🌟 <strong>表现非常棒！</strong><br>你击爆了大部分正确的科学气球！继续保持对科学的热情！";
+            } else {
+                stars.innerHTML = '<i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i>';
+                evalText.innerHTML = "💪 <strong>再接再厉！</strong><br>多复习课本上的知识点，再试一次一定能拿下三颗星！";
+            }
+        }
+    </script>
+</body>
+</html>
